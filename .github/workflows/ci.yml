@@ -19,13 +19,27 @@ jobs:
           java-version: 17
       - name: Build
         run: ./mvnw verify -B
+      - name: Upload /target folder as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: quarkus-target
+          path: target/
+          retention-days: 1
   push_to_registry:
     needs: build
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
-    steps:
+    steps:    
       - name: Check out the repo
         uses: actions/checkout@v3
+        - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: quarkus-target
+          path: ./target
+      - name: Display structure of downloaded files
+        run: ls -R
+        working-directory: .
       - name: Log in to Docker Hub
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
         with:
